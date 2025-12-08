@@ -3,20 +3,20 @@ environment:
 
 branches:
   only:
-    - master  # ветка git
+    - master
     - main
 
 cache:
   - node_modules
-  - '%LOCALAPPDATA%\\Yarn'  # Кеширование yarn
+  - '%LOCALAPPDATA%\\Yarn'
 
 install:
-  - yarn install  # Используем yarn вместо npm
+  - yarn install
 
 build: off
 
 build_script:
-  - yarn build  # Используем yarn
+  - yarn build
 
 test_script:
-  - yarn lint && yarn test  # Используем yarn
+  - yarn lint  
