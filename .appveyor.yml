@@ -1,0 +1,22 @@
+environment:
+  nodejs_version: "18"
+
+branches:
+  only:
+    - master  # ветка git
+    - main
+
+cache:
+  - node_modules
+  - '%LOCALAPPDATA%\\Yarn'  # Кеширование yarn
+
+install:
+  - yarn install  # Используем yarn вместо npm
+
+build: off
+
+build_script:
+  - yarn build  # Используем yarn
+
+test_script:
+  - yarn lint && yarn test  # Используем yarn

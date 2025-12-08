@@ -1,0 +1,1 @@
+![Статус сборки](https://github.com/dddarina/events/actions/workflows/main.yml/badge.svg)
