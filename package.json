@@ -16,7 +16,9 @@
     "preshow:coverage": "npm run coverage",
     "show:coverage": "live-server coverage/lcov-report",
     "preshow:dist": "npm run build",
-    "show:dist": "live-server dist"
+    "show:dist": "live-server dist",
+    "predeploy": "yarn build",
+    "deploy": "gh-pages -d dist"
   },
   "author": "Rysaev Damir <freepad@ya.ru>",
   "license": "MIT",
@@ -33,6 +35,7 @@
     "css-loader": "^6.8.1",
     "eslint": "^8.50.0",
     "eslint-plugin-jest": "^27.4.2",
+    "gh-pages": "6.3.0",
     "html-loader": "^4.2.0",
     "html-webpack-plugin": "^5.5.3",
     "identity-obj-proxy": "^3.0.0",
