@@ -1,0 +1,580 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 20px;
+  cursor: default; /* Стандартный курсор для body */
+}
+
+/* Когда игра активна, скрываем стандартный курсор */
+body.game-active {
+  cursor: none !important;
+}
+
+.container {
+  max-width: 800px;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.97);
+  border-radius: 25px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
+  border: 3px solid #4cc9f0;
+  position: relative;
+}
+
+.container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 80%, rgba(76, 201, 240, 0.1), transparent 50%),
+    radial-gradient(circle at 80% 20%, rgba(247, 37, 133, 0.05), transparent 50%);
+  pointer-events: none;
+  border-radius: 25px;
+  z-index: -1;
+}
+
+.header {
+  background: linear-gradient(135deg, #4361ee 0%, #3a0ca3 100%);
+  color: #f8f9fa;
+  text-align: center;
+  padding: 35px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.header h1 {
+  font-size: 2.8rem;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+  letter-spacing: 1px;
+}
+
+.header h1 i {
+  color: #4cc9f0;
+  text-shadow: 0 0 10px rgba(76, 201, 240, 0.5);
+}
+
+.subtitle {
+  font-size: 1.2rem;
+  opacity: 0.95;
+  color: rgba(248, 249, 250, 0.9);
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.5;
+}
+
+/* Секция статистики - с отступом сверху */
+.stats-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  padding: 30px 20px;
+  border-bottom: 1px solid rgba(67, 97, 238, 0.3);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.stats-row {
+  display: flex;
+  gap: 40px;
+  flex-wrap: nowrap;
+  justify-content: center;
+  align-items: center;
+  margin-top: 10px;
+  width: 100%;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 1 auto;
+  background: white;
+  padding: 20px 15px;
+  border-radius: 18px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s ease;
+  min-width: 140px;
+}
+
+.stat-item:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.18);
+}
+
+.stat-label {
+  font-size: 1.1rem;
+  color: #3a0ca3;
+  margin-bottom: 12px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.stat-value {
+  font-family: 'Courier New', monospace;
+  font-size: 2.3rem;
+  font-weight: 900;
+  color: #7209b7;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  letter-spacing: -1px;
+}
+
+#score.score-animation,
+#time.timer-animation {
+  animation: pulse 0.5s ease;
+}
+
+/* Иконки для статистики - увеличены */
+.icon-container {
+  background: linear-gradient(135deg, #4361ee, #3a0ca3);
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 15px;
+  box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+}
+
+.icon-container i {
+  color: white;
+  font-size: 1.5rem;
+}
+
+/* Секция управления - с отступом от статистики */
+.controls-section {
+  background: linear-gradient(135deg, #e9ecef 0%, #dee2e6 100%);
+  display: flex;
+  justify-content: center;
+  border-bottom: 3px solid #4361ee;
+}
+
+.controls-row {
+  display: flex;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  gap: 25px;
+  flex-wrap: wrap;
+  justify-content: center;
+  width: 100%;
+}
+
+.btn {
+  background: linear-gradient(135deg, #f72585 0%, #b5179e 100%);
+  color: white;
+  border: none;
+  padding: 15px 30px;
+  border-radius: 50px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 25px rgba(247, 37, 133, 0.35);
+  position: relative;
+  overflow: hidden;
+  min-width: 180px;
+  white-space: nowrap;
+  border: 2px solid transparent;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: 0.6s;
+}
+
+.btn:hover::after {
+  left: 100%;
+}
+
+.btn:hover {
+  transform: translateY(-5px) scale(1.05);
+  box-shadow: 0 15px 30px rgba(247, 37, 133, 0.45);
+  background: linear-gradient(135deg, #ff2d95 0%, #c71da8 100%);
+  border-color: white;
+}
+
+.btn:active {
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+  box-shadow: 0 10px 25px rgba(76, 201, 240, 0.35);
+  border-color: rgba(76, 201, 240, 0.73);
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(135deg, #4cc9f0 0%, #4361ee 100%);
+  box-shadow: 0 15px 30px rgba(76, 201, 240, 0.45);
+  border-color: white;
+}
+
+/* Игровое поле - когда игра активна, скрываем стандартный курсор */
+.game-board-container {
+  padding: 40px 30px;
+  background: linear-gradient(135deg, #f1faee 0%, #a8dadc 100%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 500px;
+}
+
+/* Скрываем стандартный курсор на всем игровом поле при активной игре */
+body.game-active .game-board-container,
+body.game-active .game-board,
+body.game-active .hole,
+body.game-active .hole-inner,
+body.game-active .image-container,
+body.game-active .dwarf {
+  cursor: none !important;
+}
+
+.game-board {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-template-rows: repeat(4, 1fr);
+  gap: 20px;
+  width: 100%;
+  max-width: 500px;
+  aspect-ratio: 1;
+  margin: 0 auto;
+}
+
+.hole {
+  background: linear-gradient(135deg, #7209b7 0%, #560bad 100%);
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 50%;
+  border: 3px solid #3a0ca3;
+  box-shadow:
+    inset 0 -20px 40px rgba(0, 0, 0, 0.6),
+    0 8px 20px rgba(0, 0, 0, 0.3);
+  width: 100%;
+  padding-bottom: 100%;
+  position: relative;
+}
+
+.hole::before {
+  content: '';
+  position: absolute;
+  top: 10%;
+  left: 10%;
+  right: 10%;
+  bottom: 10%;
+  background: radial-gradient(circle at 30% 30%, #7209b7, #560bad);
+  border-radius: 50%;
+  z-index: 1;
+  box-shadow: inset 0 10px 30px rgba(255, 255, 255, 0.1);
+}
+
+.hole::after {
+  content: '';
+  position: absolute;
+  top: 15%;
+  left: 15%;
+  right: 15%;
+  height: 25%;
+  background: radial-gradient(ellipse at center,
+      rgba(255, 255, 255, 0.25),
+      rgba(255, 255, 255, 0.05) 60%,
+      transparent 80%);
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.hole:hover {
+  transform: scale(0.96);
+  box-shadow:
+    inset 0 -20px 40px rgba(0, 0, 0, 0.7),
+    0 6px 15px rgba(0, 0, 0, 0.4);
+  border-color: #4cc9f0;
+}
+
+.hole-inner {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  overflow: hidden;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.image-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3;
+  position: relative;
+}
+
+.dwarf {
+  width: 70%;
+  height: 70%;
+  object-fit: contain;
+  pointer-events: auto;
+  user-select: none;
+  -webkit-user-drag: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform, opacity;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.4));
+  z-index: 4;
+  border-radius: 10%;
+}
+
+.dwarf:hover {
+  transform: scale(1.15);
+  filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.5));
+}
+
+.dwarf.active {
+  animation: popUp 0.4s ease;
+}
+
+/* Молоток-курсор */
+.hammer-cursor {
+  position: fixed;
+  font-size: 32px; /* Увеличил размер */
+  pointer-events: none;
+  z-index: 10000;
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s;
+  display: none; /* По умолчанию скрыт */
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+/* Когда игра активна, показываем молоток */
+body.game-active .hammer-cursor {
+  display: block;
+}
+
+.hammer-hit {
+  transform: translate(-50%, -50%) rotate(-45deg) scale(1.3);
+  transition: transform 0.1s;
+}
+
+.hole.miss {
+  background: linear-gradient(135deg, #ff4d6d 0%, #c9184a 100%);
+  border-color: #ff4d6d;
+  animation: shake 0.5s ease;
+}
+
+.hit-glow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, rgba(247, 37, 133, 0.3), transparent 70%);
+  border-radius: 50%;
+  z-index: 5;
+  animation: hitGlow 0.6s ease;
+}
+
+/* Стили для оверлея уведомления */
+#gameOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+#gameNotification {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 30px;
+  border-radius: 15px;
+  text-align: center;
+  max-width: 400px;
+  width: 90%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease-out;
+}
+
+/* Кнопка в уведомлении */
+#notificationButton {
+  background: white;
+  color: #667eea;
+  border: none;
+  padding: 12px 30px;
+  font-size: 18px;
+  border-radius: 25px;
+  cursor: pointer !important;
+  font-weight: bold;
+  transition: transform 0.2s, background 0.2s;
+}
+
+#notificationButton:hover {
+  transform: scale(1.05);
+  background: #f8f9fa;
+}
+
+/* Кнопки всегда должны иметь курсор pointer */
+.btn,
+button,
+#startBtn,
+#resetBtn,
+#notificationButton {
+  cursor: pointer !important;
+}
+
+/* Анимации */
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes popUp {
+  0% {
+    transform: scale(0.8) translateY(25px);
+    opacity: 0.5;
+  }
+  70% {
+    transform: scale(1.05) translateY(-5px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes heartbeat {
+  0%, 100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.15);
+  }
+  50% {
+    transform: scale(1.3);
+  }
+  75% {
+    transform: scale(1.15);
+  }
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  20%, 60% {
+    transform: translateX(-5px);
+  }
+  40%, 80% {
+    transform: translateX(5px);
+  }
+}
+
+@keyframes pulse {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@keyframes pulseWarning {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(1.1);
+  }
+}
+
+@keyframes pulseDanger {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1.2);
+  }
+}
+
+@keyframes glow {
+  0%, 100% {
+    filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 25px rgba(247, 37, 133, 0.7));
+  }
+}
+
+@keyframes hitGlow {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+.hit-animation {
+  animation: heartbeat 0.4s ease, glow 0.6s ease;
+}
