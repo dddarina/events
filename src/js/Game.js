@@ -4,6 +4,7 @@ import Goblin from "./Goblin";
 import Timer from "./Timer";
 import ScoreManager from "./ScoreManager";
 import HammerCursor from "./HammerCursor";
+import NotificationManager from "./NotificationManager";
 
 export default class Game {
   constructor() {
@@ -12,6 +13,8 @@ export default class Game {
     this.scoreManager = new ScoreManager();
     this.timer = new Timer(60);
     this.cursor = new HammerCursor();
+    this.notificationManager = new NotificationManager();
+    
     this.missedGoblins = 0;
     this.maxMissed = 5;
     this.gameActive = false;
@@ -19,19 +22,20 @@ export default class Game {
     this.isProcessingClick = false;
     this.lastClickTime = 0;
     this.clickDebounceDelay = 200;
-    this.gameOver = false; 
-
+    this.gameOver = false;
+    
     this.startButton = document.getElementById('startBtn');
     this.resetButton = document.getElementById('resetBtn');
-
+    
     this.init();
   }
 
   init() {
     this.board.render();
-    this.cursor.attach();
     this.setupEventListeners();
     this.updateUI();
+    
+    this.cursor.attach();
   }
 
   setupEventListeners() {
@@ -44,7 +48,7 @@ export default class Game {
     });
 
     this.resetButton.addEventListener('click', () => this.reset());
-
+    
     this.board.element.addEventListener('mousedown', (e) => {
       this.handleBoardMouseDown(e);
     });
@@ -55,7 +59,6 @@ export default class Game {
 
     const now = Date.now();
     if (now - this.lastClickTime < this.clickDebounceDelay) {
-      console.log('Слишком быстрый клик, игнорируем');
       return;
     }
     this.lastClickTime = now;
@@ -65,6 +68,8 @@ export default class Game {
 
     e.stopPropagation();
     
+    this.cursor.hit();
+    
     this.handleCellClick(cell);
   }
 
@@ -72,14 +77,17 @@ export default class Game {
     if (this.gameActive) return;
 
     if (this.gameOver) {
-      this.missedGoblins = 0;
-      this.scoreManager.reset();
-      this.gameOver = false;
+      this.reset();
     }
 
     this.gameActive = true;
+    this.gameOver = false;
     this.startButton.textContent = 'Пауза';
     this.startButton.classList.add('btn-secondary');
+
+    this.cursor.show();
+    
+    document.body.classList.add('game-active');
 
     this.timer.start(() => {
       this.endGame('Время вышло!');
@@ -97,21 +105,33 @@ export default class Game {
     this.timer.pause();
     this.clearGoblinTimeout();
     this.goblin.hide();
+    
+    this.cursor.hide();
+    document.body.classList.remove('game-active');
   }
 
   reset() {
     this.gameActive = false;
-    this.gameOver = false; 
+    this.gameOver = false;
     this.missedGoblins = 0;
     this.scoreManager.reset();
     this.timer.reset();
+    
+    this.board.resetPositionHistory();
+    this.goblin.resetPositionHistory();
 
     this.startButton.textContent = 'Начать игру';
     this.startButton.classList.remove('btn-secondary');
 
     this.clearGoblinTimeout();
     this.goblin.hide();
+    
+    this.cursor.hide();
+    document.body.classList.remove('game-active');
+    
     this.updateUI();
+    
+    this.notificationManager.hide();
   }
 
   scheduleNextGoblin() {
@@ -131,12 +151,10 @@ export default class Game {
     if (!this.gameActive) return;
 
     const position = this.board.getRandomPosition();
-    console.log(`Показываем гоблина в ячейке ${position} в ${Date.now()}`);
     
     this.goblin.show(position);
 
     this.currentGoblinTimeout = setTimeout(() => {
-      console.log(`Таймер пропуска сработал для ${position} в ${Date.now()}`);
       this.handleMissedGoblin();
     }, 1000);
   }
@@ -145,33 +163,30 @@ export default class Game {
     const cellIndex = parseInt(cell.dataset.index);
     
     if (!this.goblin.isVisible) {
-      console.log('Клик по пустой ячейке - гоблин не виден');
-      return; 
+      return;
     }
     
     const isHit = this.goblin.checkHit ? 
                   this.goblin.checkHit(cellIndex) :
                   (cellIndex === this.goblin.getCurrentPosition());
 
-    console.log('Обработка клика по ячейке:', cellIndex, 
-                'Гоблин в:', this.goblin.getCurrentPosition(),
-                'Попадание:', isHit);
-
     if (isHit) {
-      console.log('Попадание! Засчитываем очко');
       this.handleGoblinHit();
     } else {
-      console.log('Промах - клик мимо гоблина');
+      this.handleMissedGoblin();
+      
       cell.classList.add('miss');
       setTimeout(() => {
         cell.classList.remove('miss');
       }, 300);
     }
+    
+    setTimeout(() => {
+      this.cursor.reset();
+    }, 200);
   }
 
   handleGoblinHit() {
-    console.log('Обработка попадания...');
-
     this.clearGoblinTimeout();
 
     this.goblin.hit();
@@ -190,45 +205,54 @@ export default class Game {
   }
 
   handleMissedGoblin() {
-    if (!this.goblin.isVisible) {
+    this.clearGoblinTimeout();
+
+    if (this.goblin.isVisible) {
+      this.missedGoblins++;
+      this.goblin.hide();
+      
+      if (this.missedGoblins >= this.maxMissed) {
+        this.endGame('Пропущено 5 гоблинов! Игра окончена!');
+        return;
+      }
+
+      this.updateUI();
+
+      if (this.gameActive) {
+        this.scheduleNextGoblin();
+      }
+    } else {
       console.log('Гоблин уже не виден, пропуск не засчитывается');
-      return;
-    }
-
-    console.log('Пропущен гоблин! Всего пропущено:', this.missedGoblins + 1);
-
-    this.missedGoblins++;
-    this.goblin.hide();
-
-    if (this.missedGoblins >= this.maxMissed) {
-      this.endGame('Пропущено 5 гоблинов! Игра окончена!');
-      return;
-    }
-
-    this.updateUI();
-
-    if (this.gameActive) {
-      this.scheduleNextGoblin();
     }
   }
   
   endGame(message) {
     this.gameActive = false;
-    this.gameOver = true; 
+    this.gameOver = true;
     this.clearGoblinTimeout();
 
     this.startButton.textContent = 'Начать игру';
     this.startButton.classList.remove('btn-secondary');
 
     this.timer.pause();
-    this.timer.reset(); 
     this.goblin.hide();
+    
+    this.cursor.hide();
+    document.body.classList.remove('game-active');
 
-    this.updateUI(); 
-
-    setTimeout(() => {
-      alert(`${message} Вы набрали ${this.scoreManager.getScore()} очков!`);
-    }, 100);
+    const score = this.scoreManager.getScore();
+    
+    this.notificationManager.show(
+      'Игра окончена!',
+      `${message}\n\nВы набрали ${score} очков!`,
+      'Новая игра',
+      () => {
+        this.notificationManager.hide();
+        this.reset();
+      }
+    );
+    
+    this.updateUI();
   }
 
   clearGoblinTimeout() {

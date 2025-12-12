@@ -7,7 +7,8 @@ export default class Goblin {
     
     this.currentPosition = null;
     this.isVisible = false;
-    this.isBeingHidden = false; 
+    this.isBeingHidden = false;
+    this.lastPosition = null; 
   }
   
   show(position) {
@@ -16,13 +17,11 @@ export default class Goblin {
     this.currentPosition = position;
     this.isVisible = true;
     this.isBeingHidden = false;
+    this.lastPosition = position;
     
     const cell = document.querySelector(`.cell[data-index="${position}"] .hole-inner`);
     if (cell) {
-      if (this.image.parentElement) {
-        this.image.parentElement.removeChild(this.image);
-      }
-      cell.appendChild(this.image);
+      cell.append(this.image);
       this.image.style.opacity = '1';
       this.image.style.transform = 'scale(1)';
     }
@@ -34,17 +33,13 @@ export default class Goblin {
     this.isBeingHidden = true;
     this.isVisible = false;
     
-    if (this.image.parentElement) {
-      this.image.parentElement.removeChild(this.image);
-    }
+    this.image.remove();
     this.currentPosition = null;
     this.isBeingHidden = false;
   }
   
   hideImmediately() {
-    if (this.image.parentElement) {
-      this.image.parentElement.removeChild(this.image);
-    }
+    this.image.remove();
     this.isVisible = false;
     this.isBeingHidden = false;
     this.currentPosition = null;
@@ -65,5 +60,13 @@ export default class Goblin {
   
   getCurrentPosition() {
     return this.currentPosition;
+  }
+  
+  canAppearInPosition(position) {
+    return position !== this.lastPosition;
+  }
+  
+  resetPositionHistory() {
+    this.lastPosition = null;
   }
 }

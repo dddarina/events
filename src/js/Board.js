@@ -1,33 +1,46 @@
 export default class Board {
-  constructor(size) {
+  constructor(size = 4) {
     this.size = size;
     this.totalCells = size * size;
     this.element = document.getElementById('gameBoard');
-    this.cells = [];
+    this.lastGoblinPosition = null;
   }
-  
+
   render() {
     this.element.innerHTML = '';
-    this.cells = [];
     
     for (let i = 0; i < this.totalCells; i++) {
       const cell = document.createElement('div');
-      cell.className = 'hole cell';
-      cell.dataset.index = i; 
-      const cellInner = document.createElement('div');
-      cellInner.className = 'hole-inner';
-      cell.appendChild(cellInner);
+      cell.className = 'cell';
+      cell.dataset.index = i;
       
-      this.element.appendChild(cell);
-      this.cells.push(cell);
+      const hole = document.createElement('div');
+      hole.className = 'hole';
+      
+      const holeInner = document.createElement('div');
+      holeInner.className = 'hole-inner';
+      
+      hole.append(holeInner);
+      cell.append(hole); 
+      this.element.append(cell); 
     }
   }
-  
+
   getRandomPosition() {
-    return Math.floor(Math.random() * this.totalCells);
+    const allPositions = Array.from({length: this.totalCells}, (_, i) => i);
+    
+    const availablePositions = this.lastGoblinPosition !== null 
+      ? allPositions.filter(pos => pos !== this.lastGoblinPosition)
+      : allPositions;
+    
+    const randomIndex = Math.floor(Math.random() * availablePositions.length);
+    const newPosition = availablePositions[randomIndex];
+    
+    this.lastGoblinPosition = newPosition;
+    return newPosition;
   }
-  
-  getCell(position) {
-    return this.cells[position];
+
+  resetPositionHistory() {
+    this.lastGoblinPosition = null;
   }
 }

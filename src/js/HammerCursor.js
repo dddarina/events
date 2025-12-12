@@ -9,7 +9,7 @@ export default class HammerCursor {
   attach() {
     if (this.isAttached) return;
     
-    document.body.appendChild(this.cursor);
+    document.body.append(this.cursor);
     document.addEventListener('mousemove', this.updatePosition.bind(this));
     
     const gameBoard = document.getElementById('gameBoard');
